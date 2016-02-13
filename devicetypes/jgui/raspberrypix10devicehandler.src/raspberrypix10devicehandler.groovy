@@ -71,6 +71,7 @@ def on() {
   def json = "{\"command\":\"update\",\"houseCodeUnit\":\"${hcu}\",\"state\":\"on\"}"
   //log.debug "x10dh send json update ${json}"
   sendEvent(name: "x10command", value: json)
+  sendEvent(name: "switch", value:"on")
 }
   
 def off() {
@@ -78,6 +79,7 @@ def off() {
   def json = "{\"command\":\"update\",\"houseCodeUnit\":\"${hcu}\",\"state\":\"off\"}"
   //log.debug "x10dh send json update ${json}"
   sendEvent(name: "x10command", value: json)
+  sendEvent(name: "switch", value:"off")
 }
 
 /**

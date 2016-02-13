@@ -18,6 +18,7 @@ metadata {
 		capability "Garage Door Control"
 		capability "Polling"
 		capability "Refresh"
+        capability "Contact Sensor"
 
         command "setIoState"
         command "actuate"
@@ -48,10 +49,10 @@ def parse(String message) {
 def setIoState(String state) {
   log.debug "GD: set state ${state}"
   if ("LOW" == state) {
-     sendEvent(name: "switch", value: "doorClosed")
+     sendEvent(name: "switch", value: "doorClosed", isStateChange:true)
   }
   else if ("HIGH" == state) {
-     sendEvent(name: "switch", value: "doorOpen")
+     sendEvent(name: "switch", value: "doorOpen", isStateChange:true)
   } 
 }
 
