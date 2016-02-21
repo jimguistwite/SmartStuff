@@ -48,13 +48,23 @@ def garageDoorStateHandler(evt) {
     log.debug "GDM: event name: ${evt.name}"
     log.debug "GDM: event value: ${evt.value}"
     def anyOpen = false
+    def message = "MyHome Alert\n"
     garageDoors.each {
-       log.debug "GDM: ${it.name} is in state ${it.switchState.value}"
+       //log.debug "GDM: ${it.name} is in state ${it.switchState.value}"
        anyOpen |= ("doorOpen" == it.switchState.value) 
+       message = message + "${it.displayName} is ";
+       if ("doorOpen" == it.switchState.value) {
+          message = message + "open.  \n";
+       }
+       else {
+          message = message + "closed.  \n";
+       }
     }
-    log.debug "GDM: any open? ${anyOpen}"
+    //log.debug "GDM: any open? ${anyOpen}"
     lights.each {
-      log.debug "GDM: set ${it.name} on / off"
+      //log.debug "GDM: set ${it.name} on / off"
       if (anyOpen) it.on() else it.off()
     }
+
+    sendPush(message)
 }
