@@ -49,10 +49,10 @@ def parse(String message) {
 def setIoState(String state) {
   log.debug "GD: set state ${state}"
   if ("LOW" == state) {
-     sendEvent(name: "switch", value: "doorClosed", isStateChange:true)
+     sendEvent(name: "switch", value: "doorOpen", isStateChange:true)
   }
   else if ("HIGH" == state) {
-     sendEvent(name: "switch", value: "doorOpen", isStateChange:true)
+     sendEvent(name: "switch", value: "doorClosed", isStateChange:true)
   } 
 }
 

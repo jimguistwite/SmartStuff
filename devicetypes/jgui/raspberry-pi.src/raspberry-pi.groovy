@@ -211,7 +211,7 @@ def refresh() {
     updateDNI()
     def hostAddress = "${settings.confIpAddr}:${settings.confTcpPort}"
 
-    log.debug "Pi: post refresh to ${hostAddress}"
+    log.debug "Pi: posting refresh to ${hostAddress}"
 
     def actions = []
 
