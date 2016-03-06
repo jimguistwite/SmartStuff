@@ -26,7 +26,6 @@ preferences {
 
 def installed() {
 	log.debug "Installed with settings: ${settings}"
-    subscribe(location, "sunset", sunsetHandler)
 	initialize()
 }
 
@@ -43,10 +42,20 @@ def stopTimerCallback() {
 }
 
 def initialize() {
+  log.debug "Subscribe to sunet at location"
+    subscribe(location, "sunset", sunsetHandler)
+  log.debug("schedule stop time timer at " + stopTime)
 	schedule(stopTime, "stopTimerCallback")
+
+  def noParams = getSunriseAndSunset()
+  def here = getSunriseAndSunset(zipCode: "08822")
+    log.debug "sunrise with no parameters: ${noParams.sunrise}"
+    log.debug "sunset with no parameters: ${noParams.sunset}"
+    log.debug "sunrise and sunset in 08822: $here"
+
 }
 
-def sunsetHandler(evt) {
+def sunsetHandler() {
   log.debug("it is sunset.  turn on lights")
   lights.on();
 }
