@@ -31,6 +31,7 @@ preferences {
         input "lights", "capability.switch", required: true, title: "Lights", multiple:true
         input "temperatureSensors", "capability.sensor", required: false, title: "Temperature Sensors", multiple:true
         input "garageDoors", "capability.garageDoorControl", required: false, title: "Garage Doors", multiple:true
+        input "irDevices", "capability.switch", required: false, title: "IR Devices", multiple:true
     }
 
 }
@@ -78,6 +79,10 @@ def initialize() {
     subscribe(it, "garageDoorCommand", garageDoorCommandHandler)
     //subscribe(thepi, it.deviceNetworkId, garageDoorEventHandler)
     subscribe(thepi, it.deviceNetworkId + ".sensor", garageDoorEventHandler)
+  }
+  irDevices.each {
+    log.debug("Mgr: subscribe to ${it.name}")
+    subscribe(it, "irCommand", irCommandHandler)
   }
 }
 
@@ -152,6 +157,12 @@ def x10CommandHandler(evt) {
   else {
     log.error "Mgr: unknown command in request"
   }
+}
+
+def irCommandHandler(evt) {
+  log.debug "Mgr: ir command with ${evt.value}"
+  def data = new JsonSlurper().parseText(evt.value)
+  thepi.irCommand(data.networkId, data.state);
 }
 
 
