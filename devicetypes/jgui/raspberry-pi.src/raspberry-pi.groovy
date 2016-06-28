@@ -19,6 +19,7 @@ metadata {
         command "temperatureSensorRefresh"
         command "refreshInputState"
         command "toggleRelay"
+        command "irCommand"
 	}
 
 	simulator {
@@ -110,12 +111,12 @@ def parse(String message) {
        if (result.gpiostate != null) {
            if (result.gpiostate instanceof Map) {
              log.debug "Pi: gpio state " + result.gpiostate.name + " " + result.gpiostate.state
-             events << createEvent(name: result.gpiostate.name, value: result.gpiostate.state, isStateChange:true)
+             events << createEvent(name: result.gpiostate.name, value: result.gpiostate.state)
           }
           else if (result.gpiostate instanceof List) {
               result.gpiostate.each {
                   log.debug "Pi: gpio state " + it.name + " " + it.state
-                  events << createEvent(name: it.name, value: it.state, isStateChange:true)
+                  events << createEvent(name: it.name, value: it.state)
               }
           }
       }
@@ -125,6 +126,21 @@ def parse(String message) {
    }
    //log.debug "Pi: parse returning events ${events}"
    return events
+}
+
+def irCommand(networkId, state) {
+  log.debug("Pi: process irCommand for ${networkId} and state ${state}")
+	def json = "{\"virtualdevice\":\"${networkId}\", \"state\":\"${state}\"}"
+	log.debug "posting ${json}"
+	new physicalgraph.device.HubAction([
+        method: "POST",
+        path: "/virtualir",
+        body: json,
+        headers: [
+        	Accept: "application/json",
+            'Content-type': 'application/json',
+            HOST: hostAddress
+        ]])
 }
 
 def x10Update(code,state) {
