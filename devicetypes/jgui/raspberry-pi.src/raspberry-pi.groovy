@@ -60,7 +60,7 @@ def parse(String message) {
    def slurper = new JsonSlurper()
    def result = slurper.parseText(msg.body)
    def events = []
-   if (result.status == "success") {
+   if ((result instanceof Map) && (result.status == "success")) {
       def zone = TimeZone.getTimeZone("EST")
       events << createEvent(name:"lastupdate",value: new Date().format("MM/dd\nhh:mm:ss",zone))
       if (result.deviceconfig != null) {
@@ -128,13 +128,13 @@ def parse(String message) {
    return events
 }
 
-def irCommand(networkId, state) {
-  log.debug("Pi: process irCommand for ${networkId} and state ${state}")
-	def json = "{\"virtualdevice\":\"${networkId}\", \"state\":\"${state}\"}"
-	log.debug "posting ${json}"
+def irCommand(json) {
+  def hostAddress = "${settings.confIpAddr}:${settings.confTcpPort}"
+  log.debug("Pi: process irCommand ${json}")
+	log.debug "posting ${json} to ${hostAddress}"
 	new physicalgraph.device.HubAction([
         method: "POST",
-        path: "/virtualir",
+        path: "/sendir",
         body: json,
         headers: [
         	Accept: "application/json",
