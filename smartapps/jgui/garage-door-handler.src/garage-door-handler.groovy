@@ -45,19 +45,18 @@ def initialize() {
 }
 
 def garageDoorStateHandler(evt) {
-    log.debug "GDM: event name: ${evt.name}"
-    log.debug "GDM: event value: ${evt.value}"
+    log.debug "GDM: event name: ${evt.name} ${evt.value}"
     def anyOpen = false
-    def message = "MyHome Alert: "
+    def message = "Home: "
     garageDoors.each {
        //log.debug "GDM: ${it.name} is in state ${it.switchState.value}"
        anyOpen |= ("doorOpen" == it.switchState.value) 
-       message = message + "${it.displayName} is ";
+       message = message + "${it.displayName} ";
        if ("doorOpen" == it.switchState.value) {
-          message = message + "open.  ";
+          message = message + "OPEN. ";
        }
        else {
-          message = message + "closed.  ";
+          message = message + "CLOSED. ";
        }
     }
     //log.debug "GDM: any open? ${anyOpen}"

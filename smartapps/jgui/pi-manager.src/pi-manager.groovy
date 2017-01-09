@@ -1,6 +1,12 @@
 /**
  *  Pi Manager
  *  Copyright 2016 James Guistwite
+ *
+ *  Links devices to the pi for actions to take place.  Device handlers cannot talk to one another.
+ *  I would like to have the IR device send a command to the Pi device to perform some operation but
+ *  that is not possible, probably for security reasons.  However, devices can send events to their
+ *  "manager" and the manager can call commands on devices.   So, everything routes through this Pi
+ *  manager.
  */
 
 import groovy.json.JsonSlurper
@@ -32,6 +38,7 @@ preferences {
         input "temperatureSensors", "capability.sensor", required: false, title: "Temperature Sensors", multiple:true
         input "garageDoors", "capability.garageDoorControl", required: false, title: "Garage Doors", multiple:true
         input "irDevices", "capability.switch", required: false, title: "IR Devices", multiple:true
+        input "commandSequences", "capability.momentary", required: false, title: "Command Sequences", multiple:true
     }
 
 }
@@ -62,7 +69,7 @@ def x10Refresh(device,code) {
 */
 
 def initialize() {
-  log.debug "Mgr: the devices ${lights} ${temperatureSensors} ${garageDoors}"
+  log.debug "Mgr: the devices ${lights} ${temperatureSensors} ${garageDoors} ${irDevices} ${commandSequences}"
 
   subscribe(location, handlerMethod)
   
@@ -81,6 +88,10 @@ def initialize() {
     subscribe(thepi, it.deviceNetworkId + ".sensor", garageDoorEventHandler)
   }
   irDevices.each {
+    log.debug("Mgr: subscribe to ${it.name}")
+    subscribe(it, "irCommand", irCommandHandler)
+  }
+  commandSequences.each {
     log.debug("Mgr: subscribe to ${it.name}")
     subscribe(it, "irCommand", irCommandHandler)
   }
@@ -143,7 +154,7 @@ def garageDoorEventHandler(evt) {
 
 
 def x10CommandHandler(evt) {
-  log.debug "Mgr: x10Refresh with ${evt.value}"
+  log.debug "Mgr: x10 command with ${evt.value}"
   def data = new JsonSlurper().parseText(evt.value)
   if (data.command == "refresh") {
     def code = data.houseCodeUnit
@@ -159,10 +170,17 @@ def x10CommandHandler(evt) {
   }
 }
 
+/**
+ * Proxy the ir command to the Pi for processing.
+ */
 def irCommandHandler(evt) {
   log.debug "Mgr: ir command with ${evt.value}"
-  def data = new JsonSlurper().parseText(evt.value)
-  thepi.irCommand(data.networkId, data.state);
+  def data = evt.value;
+  if (evt.value instanceof String) {
+    // convert string to json structure.
+    data = new JsonSlurper().parseText(evt.value)
+  }
+  thepi.irCommand(data);
 }
 
 
