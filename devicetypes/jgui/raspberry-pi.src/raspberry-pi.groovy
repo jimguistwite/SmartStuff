@@ -29,6 +29,8 @@ metadata {
     preferences {
     input("confIpAddr", "string", title:"IP Address",
         required:true, displayDuringSetup: true)
+    input("confBaseUrl", "string", title:"Base URL",
+        required:false, displayDuringSetup: true)
     input("confTcpPort", "number", title:"TCP Port",
         required:true, displayDuringSetup:true)
     input("confMac", "string", title:"Mac Address (upper, nocolon)",
@@ -134,7 +136,7 @@ def irCommand(json) {
 	log.debug "posting ${json} to ${hostAddress}"
 	new physicalgraph.device.HubAction([
         method: "POST",
-        path: "/sendir",
+        path: settings.confBaseUrl + "/sendir",
         body: json,
         headers: [
         	Accept: "application/json",
@@ -151,7 +153,7 @@ def x10Update(code,state) {
 	log.debug "posting " + json.toString()
 	new physicalgraph.device.HubAction([
         method: "POST",
-        path: "/x10",
+        path: settings.confBaseUrl + "/x10",
         body: json.toString(),
         headers: [
         	Accept: "application/json",
@@ -167,7 +169,7 @@ def temperatureSensorRefresh(sensorName) {
 
 	new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/temp/" + sensorName,
+        path: settings.confBaseUrl + "/temp/" + sensorName,
         headers: [
         	Accept: "application/json",
             HOST: hostAddress
@@ -181,7 +183,7 @@ def refreshInputState(sensorName) {
 
 	new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/gpiostate/" + sensorName,
+        path: settings.confBaseUrl + "/gpiostate/" + sensorName,
         headers: [
         	Accept: "application/json",
             HOST: hostAddress
@@ -195,7 +197,7 @@ def toggleRelay(pin) {
 	log.debug "posting ${json}"
 	new physicalgraph.device.HubAction([
         method: "POST",
-        path: "/gpiotoggle",
+        path: settings.confBaseUrl + "/gpiotoggle",
         body: json,
         headers: [
         	Accept: "application/json",
@@ -214,7 +216,7 @@ def x10Refresh(code) {
 
 	new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/x10/" + code,
+        path: settings.confBaseUrl + "/x10/" + code,
         headers: [
         	Accept: "application/json",
             HOST: hostAddress
@@ -227,51 +229,33 @@ def refresh() {
     updateDNI()
     def hostAddress = "${settings.confIpAddr}:${settings.confTcpPort}"
 
-    log.debug "Pi: posting refresh to ${hostAddress}"
+    log.debug "Pi: posting refresh to ${hostAddress}/${settings.confBaseUrl}"
 
     def actions = []
 
 	actions << new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/sysinfo",
-        headers: [
-        	Accept: "application/json",
-            HOST: hostAddress,
-        ]])
-	actions << new physicalgraph.device.HubAction([
-        method: "GET",
-        path: "/x10",
+        path: settings.confBaseUrl + "/x10",
         headers: [
         	Accept: "application/json",
             HOST: hostAddress,
         ]])
     actions << new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/temp",
+        path: settings.confBaseUrl + "/temp",
         headers: [
         	Accept: "application/json",
             HOST: hostAddress,
         ]])
     actions << new physicalgraph.device.HubAction([
         method: "GET",
-        path: "/gpiostate",
+        path: settings.confBaseUrl + "/gpiostate",
         headers: [
         	Accept: "application/json",
             HOST: hostAddress,
         ]])
 
     return actions
-/*
-  works via the cloud.  request goes out through smartthings...
-  try {
-        httpGet("http://10.0.0.244:9000/sysinfo") { resp ->
-        log.debug "response data: ${resp.data}"
-        log.debug "response contentType: ${resp.contentType}"
-    }
-    } catch (e) {
-        log.debug "something went wrong: $e"
-    }
-*/
 }
 
 

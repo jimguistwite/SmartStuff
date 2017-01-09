@@ -29,8 +29,6 @@ metadata {
         input name: "cmd7", type: "text", title: "Command 7", description: "Enter Location device and action", required: false
         input name: "cmd8", type: "text", title: "Command 8", description: "Enter Location device and action", required: false
         input name: "cmd9", type: "text", title: "Command 9", description: "Enter Location device and action", required: false
-        input name: "cmd10", type: "text", title: "Command 10", description: "Enter Location device and action", required: false
-
    }
 
 	simulator {
@@ -75,7 +73,6 @@ def push() {
   if (cmd7 != null) c2.add(tocommand(cmd7))
   if (cmd8 != null) c2.add(tocommand(cmd8))
   if (cmd9 != null) c2.add(tocommand(cmd9))
-  if (cmd10 != null) c2.add(tocommand(cmd10))
 
   def json = new groovy.json.JsonBuilder()
   json commands: c2

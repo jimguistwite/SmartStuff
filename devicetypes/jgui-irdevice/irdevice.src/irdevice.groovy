@@ -21,6 +21,16 @@ import groovy.json.JsonBuilder
 metadata {
 	definition (name: "IrDevice", namespace: "jgui.irdevice", author: "James Guistwite") {
 		capability "Switch"
+        capability "Momentary"
+        command "action1"
+        command "action2"
+        command "action3"
+        command "action4"
+        command "action5"
+        command "action6"
+        command "action7"
+        command "action8"
+        command "action9"
 	}
 
 	simulator {
@@ -29,10 +39,15 @@ metadata {
 
   preferences {
         input name: "device1", type: "text", title: "Device 1", description: "Enter Location and device", required: true, displayDuringSetup: true
-        input name: "device2", type: "text", title: "Device 2", description: "Enter Location and device", required: false
-        input name: "device3", type: "text", title: "Device 3", description: "Enter Location and device", required: false
-        input name: "device4", type: "text", title: "Device 4", description: "Enter Location and device", required: false
-        input name: "device5", type: "text", title: "Device 5", description: "Enter Location and device", required: false
+        input name: "action1", type: "text", title: "Action 1", description: "Action 1", required: false
+        input name: "action2", type: "text", title: "Action 2", description: "Action 2", required: false
+        input name: "action3", type: "text", title: "Action 3", description: "Action 3", required: false
+        input name: "action4", type: "text", title: "Action 4", description: "Action 4", required: false
+        input name: "action5", type: "text", title: "Action 5", description: "Action 5", required: false
+        input name: "action6", type: "text", title: "Action 6", description: "Action 6", required: false
+        input name: "action7", type: "text", title: "Action 7", description: "Action 7", required: false
+        input name: "action8", type: "text", title: "Action 8", description: "Action 8", required: false
+        input name: "action9", type: "text", title: "Action 9", description: "Action 9", required: false
 
    }
 
@@ -42,14 +57,28 @@ metadata {
         state "on", label: '${name}', action: "switch.off", icon: "st.switches.switch.on", backgroundColor: "#0090D0"
 	  }
 
+      standardTile("action1Tile", "device.action1", width: 1, height: 1, canChangeIcon: true) {
+        state "default", label: 'A1', action: "action1", icon: "st.Electronics.electronics13", backgroundColor: "#0275d8"
+	  }
+      standardTile("action2Tile", "device.action2", width: 1, height: 1, canChangeIcon: true) {
+        state "default", label: 'A2', action: "action2", icon: "st.Electronics.electronics13", backgroundColor: "#5cb85c"
+	  }
+      standardTile("action3Tile", "device.action3", width: 1, height: 1, canChangeIcon: true) {
+        state "default", label: 'A3', action: "action3", icon: "st.Electronics.electronics13", backgroundColor: "#5bc0de"
+	  }
+      standardTile("action4Tile", "device.action4", width: 1, height: 1, canChangeIcon: true) {
+        state "default", label: 'A4', action: "action4", icon: "st.Electronics.electronics13", backgroundColor: "#0275d8"
+	  }
+
       main "switchTile"
-      details(["switchTile"])
+      details(["switchTile", "action1Tile", "action2Tile", "action3Tile", "action4Tile"])
 	}
 }
 
 // parse events into attributes
 def parse(String description) {
 }
+
 
 // handle commands
 def on() {
@@ -59,25 +88,37 @@ def off() {
   doit("poweroff", "off");
 }
 
-def tocommand(s, onoff) {
+def tocommand(s, action) {
   def locAndDev = s.tokenize(':')
-  return [location: locAndDev[0], device: locAndDev[1], action: onoff]
+  return [location: locAndDev[0], device: locAndDev[1], action: action]
 }
 
-def doit(onoff, newstate) {
+def doit(action, newstate) {
   def c2 = [];
-  if (device1 != null) c2.add(tocommand(device1, onoff))
-  if (device2 != null) c2.add(tocommand(device2, onoff))
-  if (device3 != null) c2.add(tocommand(device3, onoff))
-  if (device4 != null) c2.add(tocommand(device4, onoff))
-  if (device5 != null) c2.add(tocommand(device5, onoff))
-
- // def commands = device.deviceNetworkId.tokenize(',').collect {
- //     def locAndDev = it.tokenize(':')
- //     return [location: locAndDev[0], device: locAndDev[1], action: onoff]
- // }
+  if (device1 != null) c2.add(tocommand(device1, action))
   def json = new groovy.json.JsonBuilder()
   json commands: c2
-  sendEvent(name: "irCommand", value: json.toString())
-  sendEvent(name: "switch", value:newstate)
+  sendEvent(name: "irCommand", value: json.toString(), isStateChange: true)
+  if (newstate != null) {
+    sendEvent(name: "switch", value:newstate)
+  }
 }
+
+def doaction(action) {
+  def idx = action.indexOf(":")
+  if (idx > 0) {
+    action = action.substring(idx+1)
+  }
+  log.debug("do ${action}")
+  doit(action, null);
+}
+
+def action1() { doaction(action1) }
+def action2() { doaction(action2) }
+def action3() { doaction(action3) }
+def action4() { doaction(action4) }
+def action5() { doaction(action5) }
+def action6() { doaction(action6) }
+def action7() { doaction(action7) }
+def action8() { doaction(action8) }
+def action9() { doaction(action9) }
